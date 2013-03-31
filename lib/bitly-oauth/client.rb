@@ -74,7 +74,31 @@ module BitlyOAuth
       results.length > 1 ? results : results[0]
     end
 
+    #---- Additions to Bitly OAuth ----#
+    #  Take a query string and gets popular results
+    def search(input, options={})
+      validate(%w(limit offset lang cities domain fields), options)
+      search_method(:search, input, options)
+    end
+
+    def validate valid_keys, params
+      params.keys.each do |k|
+        unless valid_keys.include? k.to_s
+          raise "#{k} isn't a valid key"
+        end
+      end
+    end
+    #-----------------------------------#
+
     private
+
+    def search_method(method, input, options={})
+      options = ParamsHash[ options ]
+      options.symbolize_keys!
+      options[:query] = input
+
+      response = v3(method, options)
+    end
 
     def get_method(method, input, options={})
       options = ParamsHash[ options ]
